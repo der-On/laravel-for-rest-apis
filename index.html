@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=1024, user-scalable=no">
+
+  <title>Laravel für REST APIs</title>
+
+  <!-- Required stylesheet -->
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/core/deck.core.css">
+
+  <!-- Extension CSS files go here. Remove or ali as needed. -->
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/extensions/goto/deck.goto.css">
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/extensions/menu/deck.menu.css">
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/extensions/navigation/deck.navigation.css">
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/extensions/status/deck.status.css">
+  <!--<link rel="stylesheet" media="screen" href="bower_components/deck.js/extensions/scale/deck.scale.css">-->
+
+  <!-- Style theme. More available in /themes/style/ or create your own. -->
+  <link rel="stylesheet" media="screen" href="bower_components/deck.js/themes/style/swiss.css">
+
+  <!-- Transition theme. More available in /themes/transition/ or create your own. -->
+  <!--<link rel="stylesheet" media="screen" href="bower_components/deck.js/themes/transition/fade.css">-->
+
+  <!-- Basic black and white print styles -->
+  <link rel="stylesheet" media="print" href="bower_components/deck.js/core/print.css">
+
+  <!-- remote control -->
+  <link rel="stylesheet" href="node_modules/ffos-remote-control-deck-js/ffos-remote-control-deck-js.css">
+
+  <!-- syntax highlighting -->
+  <link rel="stylesheet" href="node_modules/highlight.js/styles/monokai_sublime.css">
+  <script src="javascripts/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <!-- Required Modernizr file -->
+  <script src="bower_components/deck.js/modernizr.custom.js"></script>
+
+  <style type="text/css">
+    html, body {
+      font-size: 1.5vh;
+    }
+    .deck-container {
+      overflow: hidden;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="deck-container">
+
+    <!-- Begin slides. Just make elements with a class of slide. -->
+
+    <section class="slide">
+      <h1>Laravel für REST APIs</h1>
+    </section>
+
+    <section class="slide">
+      <h2>Laravel Projekt erstellen</h2>
+
+      <pre><code class="bash">
+$ composer create-project laravel/laravel your-project-name --prefer-dist
+$ sudo chown your-user:www-data -R your-project-name/app/storage &&
+  sudo chmod g+rwx -R your-project-name/app/storage
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>App - Struktur</h2>
+
+      <ul>
+        <li>app
+          <ul>
+            <li>views</li>
+            <li>controllers</li>
+            <li>models</li>
+            <li>database
+              <ul>
+                <li>seeds</li>
+                <li>migrations</li>
+              </ul>
+            </li>
+            <li>...</li>
+          </ul>
+        </li>
+        <li>bootstrap</li>
+        <li>public</li>
+        <li>vendor</li>
+        <li>phpunit.xml</li>
+        <li>...</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Migrationen</h2>
+      <h3>erstellen</h3>
+      <pre><code class="bash">
+php artistan migrate:make create_users_table
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Migrationen</h2>
+      <h3>app/database/migrations/xx_create_users_table.php</h3>
+
+      <pre><code class="php">
+public function up()
+{
+  Schema::create('users', function(Blueprint $table)
+  {
+    $table->increments('id');
+    $table->string('email')->unique();
+    $table->string('username')->unique();
+    $table->string('password');
+    $table->rememberToken();
+    $table->string('reset_token')->nullable();
+    $table->timestamps();
+  });
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Migrationen</h2>
+      <h3>app/database/migrations/xx_create_users_table.php</h3>
+      <pre><code class="php">
+public function down()
+{
+  Schema::drop('users');
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Migrationen</h2>
+      <h3>ausführen</h3>
+      <pre><code class="bash">
+php artisan migrate
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Routing</h2>
+      <h3>app/routes.php</h3>
+
+      <pre><code class="php">
+Route::get('users', function()
+{
+  return 'Users!';
+});
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Routing</h2>
+      <h3>/users</h3>
+
+      <p>Users!</p>
+    </section>
+
+    <section class="slide">
+      <h2>Routing</h2>
+      <h3>app/routes.php</h3>
+
+      <pre><code class="php">
+Route::get('users', 'UserController@getIndex');
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Routing</h2>
+      <h3>app/routes.php</h3>
+
+      <pre><code class="php">
+Route::resource('users', 'UserController');
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Resourcen Controller</h2>
+      <h3>erstellen</h3>
+
+      <pre><code class="bash">
+php artisan controller:make PhotoController
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Resourcen Controller</h2>
+      <h3>Resulat</h3>
+
+      <table style="layout: auto; width: 100%;">
+        <thead>
+        <tr>
+          <th>Verb</th>
+          <th>Path</th>
+          <th>Action</th>
+          <th>Route Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>GET</td>
+          <td>/resource</td>
+          <td>index</td>
+          <td>resource.index</td>
+        </tr>
+        <tr>
+          <td>GET</td>
+          <td>/resource/create</td>
+          <td>create</td>
+          <td>resource.create</td>
+        </tr>
+        <tr>
+          <td>POST</td>
+          <td>/resource</td>
+          <td>store</td>
+          <td>resource.store</td>
+        </tr>
+        <tr>
+          <td>GET</td>
+          <td>/resource/{resource}</td>
+          <td>show</td>
+          <td>resource.show</td>
+        </tr>
+        <tr>
+          <td>GET</td>
+          <td>/resource/{resource}/edit</td>
+          <td>edit</td>
+          <td>resource.edit</td>
+        </tr>
+        <tr>
+          <td>PUT/PATCH</td>
+          <td>/resource/{resource}</td>
+          <td>update</td>
+          <td>resource.update</td>
+        </tr>
+        <tr>
+          <td>DELETE</td>
+          <td>/resource/{resource}</td>
+          <td>destroy</td>
+          <td>resource.destroy</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="slide">
+      <h2>Verschachtelte Resource Controller</h2>
+      <pre><code class="php">
+Route::resource('photos.comments', 'PhotoCommentController');
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Authorisierung</h2>
+      <div class="slide">
+        <h3>app/filters.php</h3>
+
+        <pre><code class="php">
+/*
+ * API-Key filter
+ *
+ * This filter will check for a valid api key
+ */
+Route::filter('apiKey', function() {
+  return ApiKeyController::check();
+});
+        </code></pre>
+      </div>
+
+      <div class="slide">
+        <h3>app/routes.php</h3>
+
+        <pre><code class="php">
+// API routes protected with api-key
+Route::group(array('before' => array('apiKey')), function() {
+  Route::resource('users', 'UserController');
+});
+        </code></pre>
+      </div>
+
+    </section>
+
+    <section class="slide">
+      <h2>Versionierung</h2>
+      <h3>app/routes.php</h3>
+
+      <pre><code class="php">
+// API version 1
+Route::group(array('prefix' => 'v1', function() {
+
+  // API routes protected with api-key
+  Route::group(array('before' => array('apiKey')), function() {
+    Route::resource('users', 'UserController');
+  });
+});
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Versionierung</h2>
+      <h3>/v1/users</h3>
+
+      <pre><code class="json">
+[
+  {
+    "id": "1",
+    "username": "foo",
+    "email": "foo@bar.com",
+    ...
+  },
+  ...
+]
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Eloquent ORM</h2>
+      <h3>Models</h3>
+
+      <pre><code class=php">
+class Photo extends Eloquent {
+
+  protected $table = 'photos';
+
+  protected $fillable = array(
+    'title', 'description', 'author', 'camera', 'focus', 'lens', 'shutter', 'location'
+  );
+
+  protected $guarded = array(
+    ...
+  );
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Eloquent ORM</h2>
+      <h3>Models - Relationen</h3>
+
+      <pre><code class="php">
+public function comments()
+{
+  return $this->hasMany('Comment');
+}
+
+public function author()
+{
+  return $this->belongsTo('User');
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Eloquent ORM</h2>
+      <h3>Selects</h3>
+
+      <pre><code class="php">
+$bigger_photos = Photo::where('filesize', '>=', 300 * 1024)->get();
+
+$first_user = User::find(1);
+
+$photos_with_comments = Photo::all()->with('comments')->get();
+
+$photos_with_comments_and_authors = Photo::all()->with(array('comments', 'author'))->get();
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Eloquent ORM</h2>
+      <h3>komplexe Selects</h3>
+
+      <pre><code class="php">
+$photos = Photo::where('filesize', '>=', 300 * 1024)
+            ->whereNested(function($query) {
+              $query->where('focus', '<', '30')
+              $query->where('shutter', '>', '200')
+            }, 'or')
+          ->get();
+      </code></pre>
+
+      <pre><code class="sql">
+SELECT * FROM photos WHERE filesize>=300 OR (focus<30 AND shutter>200);
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Eloquent ORM</h2>
+      <h3>Relationen speichern</h3>
+
+      <pre><code class="php">
+$photo = Photo::create(array(
+  'title' => 'neues Bild'
+));
+
+$user = User::find(1);
+
+$photo->author()->associate($user);
+$photo->save();
+      </code></pre>
+
+      <pre><code class="php">
+$comment = Comment::create(...);
+$photo->comments()->save($comment);
+
+...
+
+$photo->comments()->saveMany($comments);
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Class ResourceController</h2>
+
+      <pre><code class="php">
+public function index()
+{
+  $modelName = $this->modelName;
+  $modelRelName = $this->getModelPropNamePlural();
+
+  $query = $modelName::with($this->loadEager);
+
+  $this->adjustQuery($query);
+  $models = $query->get();
+
+  return $this->respondWithModels($models);
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Class ResourceController</h2>
+
+      <pre><code class="php">
+public function respondWithModels($models, $key = null)
+{
+  if (!$key) $key = $this->getModelPropNamePlural();
+
+  $data = array();
+  $data[$key] = $models;
+
+  return $this->respondWithData($data);
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Class ResourceController</h2>
+
+      <pre><code class="php">
+public static function respondWithData($data, $code = 200)
+{
+  return Response::json($data, $code);
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+protected function adjustQuery($query)
+{
+  // order
+  if (Input::has('order')) {
+    $order = Input::get('order');
+    if (!is_array($order)) $order = json_decode($order, true);
+
+    foreach($order as $key => $dir) {
+      $query->orderBy($key, $dir);
+    }
+  }
+
+...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+...
+  // offset & limit
+  $offset = 0;
+  if (Input::has('offset')) $offset = intval(Input::get('offset'));
+
+  $query->offset($offset);
+
+  $limit = 25;
+  if (Input::has('limit')) $limit = intval(Input::get('limit'));
+
+  $query->limit($limit);
+...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+...
+  // having
+  if (Input::has('has')) {
+    $has = Input::get('has');
+    if (!is_array($has)) $has = json_decode($has, true);
+    $query->having($has);
+  }
+...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+...
+  // query
+  if (Input::has('query')) {
+    $_query = Input::get('query');
+    if (!is_array($_query)) return;
+
+    foreach($_query as $key => $value) {
+      // complex query
+      if (is_array($value)) {
+        foreach($value as $op => $_value)
+        {
+          switch($op) {
+        ...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+        ...
+            case 'eq': $query->where($key, $_value); break;
+            case 'neq': $query->where($key, '!=', $_value); break;
+            case 'gt': $query->where($key, '>', $_value); break;
+            case 'lt': $query->where($key, '<', $_value); break;
+            case 'gte': $query->where($key, '>=', $_value); break;
+            case 'lte': $query->where($key, '<=', $_value); break;
+            case 'in': $query->whereIn($key, $_value); break;
+            case 'not_in': $query->whereNotIn($key, $_value); break;
+            case 'between': $query->whereBetween($key, $_value); break;
+            case 'not_between': $query->whereNotBetween($key, $_value); break;
+            case 'null': $query->whereNull($key, 'and', !($_value)); break;
+            case 'like': $query->where($key, 'LIKE', '%' . $_value . '%'); break;
+          }
+        }
+      }
+      ...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+      ...
+      // simple equality query
+      else {
+        $query->where($key, $value);
+      }
+    }
+  }
+...
+      </code></pre>
+    </section>
+    <section class="slide">
+      <h2>Class ResoureController</h2>
+
+      <pre><code class="php">
+...
+  // with
+  if (Input::has('with')) {
+    $with = Input::get('with');
+    if (!is_array($with)) $with = json_decode($with, true);
+    // strip away keys if any
+    $with = array_values($with);
+    $query->with($with);
+  }
+}
+      </code></pre>
+    </section>
+
+    <section class="slide">
+      <h1>Fin</h1>
+    </section>
+
+    <!-- End slides. -->
+
+    <!-- Begin extension snippets. Ali or remove as needed. -->
+
+    <!-- deck.navigation snippet -->
+    <div aria-role="navigation">
+      <a href="#" class="deck-prev-link" title="Previous">&#8592;</a>
+      <a href="#" class="deck-next-link" title="Next">&#8594;</a>
+    </div>
+
+    <!-- deck.status snippet -->
+    <p class="deck-status" aria-role="status">
+      <span class="deck-status-current"></span>
+      /
+      <span class="deck-status-total"></span>
+    </p>
+
+    <!-- deck.goto snippet -->
+    <form action="." method="get" class="goto-form">
+      <label for="goto-slide">Go to slide:</label>
+      <input type="text" name="slidenum" id="goto-slide" list="goto-datalist">
+      <datalist id="goto-datalist"></datalist>
+      <input type="submit" value="Go">
+    </form>
+
+    <!-- End extension snippets. -->
+  </div>
+
+<!-- Required JS files. -->
+<script src="bower_components/deck.js/jquery.min.js"></script>
+<script src="bower_components/deck.js/core/deck.core.js"></script>
+
+<!-- Extension JS files. Ali or remove as needed. -->
+<script src="bower_components/deck.js/extensions/menu/deck.menu.js"></script>
+<script src="bower_components/deck.js/extensions/goto/deck.goto.js"></script>
+<script src="bower_components/deck.js/extensions/status/deck.status.js"></script>
+<script src="bower_components/deck.js/extensions/navigation/deck.navigation.js"></script>
+<script src="bower_components/deck.js/extensions/scale/deck.scale.js"></script>
+
+<!-- remote control -->
+<script src="node_modules/socket.io-client/socket.io.js"></script>
+<script src="node_modules/ffos-remote-control-deck-js/ffos-remote-control-deck-js.js"></script>
+
+<!-- Initialize the deck. You can put this in an external file if desired. -->
+<script>
+  $(function() {
+    $.deck('.slide');
+    $.deck.ffosRemoteControl();
+  });
+</script>
+</body>
+</html>

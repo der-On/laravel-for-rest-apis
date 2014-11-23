@@ -1,0 +1,19 @@
+{
+  "name": "laravel-for-rest",
+  "version": "1.0.0",
+  "authors": [
+    "Ondrej Brinkel <info@anzui.de>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "deck.js": "~1.1.0"
+  }
+}
